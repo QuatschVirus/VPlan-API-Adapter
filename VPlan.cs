@@ -84,6 +84,7 @@ namespace VPlan_API_Adapter
         public int? DaysPerWeek { get; private set; }
 
         private Dictionary<string, Class> classes = [];
+        private Dictionary<string, 
 
         public Class? GetClass(string name, bool allowUpdates)
         {
@@ -117,6 +118,15 @@ namespace VPlan_API_Adapter
         public string Name { get; }
         public IReadOnlyList<PeriodTime> PeriodTimes { get; }
         public IReadOnlyDictionary<int, SubjectRecord> Subjects { get; }
+        public IReadOnlyList<Lesson> Lessons { get; }
+    }
+
+    public class Teacher {
+        public Teacher(XElement classesRoot) {
+            
+        }
+
+        public string ShortHand { get; }
         public IReadOnlyList<Lesson> Lessons { get; }
     }
 
