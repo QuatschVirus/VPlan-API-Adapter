@@ -16,9 +16,6 @@ namespace VPlan_API_Adapter
         private readonly TimeSpan expiration;
 
         private readonly string fullBaseUrl;
-        private readonly List<string> cachedClasses;
-        private readonly List<string> cachedTeachers;
-        private readonly List<string> cachedRooms;
 
         public DateTime LastPulled => lastPulled;
 
@@ -51,13 +48,10 @@ namespace VPlan_API_Adapter
             }
         }
 
-        public VPlan(DateOnly refDate, TimeSpan expiration, string url, string username, string password, List<string> cachedClasses, List<string> cachedTeachers, List<string> cachedRooms)
+        public VPlan(DateOnly refDate, TimeSpan expiration, string url, string username, string password)
         {
             referenceDate = refDate;
             fullBaseUrl = $"https://https://{username}:{password}@{url}";
-            this.cachedClasses = cachedClasses;
-            this.cachedTeachers = cachedTeachers;
-            this.cachedRooms = cachedRooms;
             this.expiration = expiration;
         }
 
@@ -71,8 +65,11 @@ namespace VPlan_API_Adapter
             OffDays = root.Element("FreieTage")!.Elements()!.Select(e => DateOnly.ParseExact(e.Value, "yyMMdd")).ToList();
             Infos = root.Element("ZusatzInfo")?.Elements()?.Select(e => e.Value).ToList() ?? [];
 
-            classes = root.Element("Klassen")!.Elements().Where(e => cachedClasses.Contains(e.Element("Kurz")!.Value)).Select(e => new Class(e)).ToDictionary(c => c.Name);
-            
+            classes = root.Element("Klassen")!.Elements().Select(e => new Class(e)).ToDictionary(c => c.Name);
+            teachers = (
+                from c in classes
+
+            )            
             
         }
 
@@ -84,7 +81,7 @@ namespace VPlan_API_Adapter
         public int? DaysPerWeek { get; private set; }
 
         private Dictionary<string, Class> classes = [];
-        private Dictionary<string, 
+        private Dictionary<string, Teacher> teachers = [];
 
         public Class? GetClass(string name, bool allowUpdates)
         {
@@ -94,7 +91,6 @@ namespace VPlan_API_Adapter
             {
                 if (allowUpdates)
                 {
-                    cachedClasses.Add(name);
                     UpdateData();
                     return GetClass(name, false);
                 }
@@ -119,12 +115,16 @@ namespace VPlan_API_Adapter
         public IReadOnlyList<PeriodTime> PeriodTimes { get; }
         public IReadOnlyDictionary<int, SubjectRecord> Subjects { get; }
         public IReadOnlyList<Lesson> Lessons { get; }
+
+        public List<Lesson> GetLessonsWithTeacher(string shorthand, bool includeSubbedLessons = true, bool includeSubbingLessons = true) {
+        }
+
+        public bool HasTeacher(string shorthand, bool includeSubs = true) {
+            
+        }
     }
 
     public class Teacher {
-        public Teacher(XElement classesRoot) {
-            
-        }
 
         public string ShortHand { get; }
         public IReadOnlyList<Lesson> Lessons { get; }
