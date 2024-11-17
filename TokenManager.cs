@@ -33,10 +33,11 @@ namespace VPlan_API_Adapter
         {
             Passed,
             Missing,
-            Failed
+            Failed,
+            Unauthorized
         }
 
-        public VerificationResult VerifyTokenInRequest(HttpContext ctx)
+        public VerificationResult VerifyTokenInRequest(HttpContext ctx, bool requireAdmin = false)
         {
             if (!ctx.Request.Headers.TryGetValue(tokenHeaderName, out var strings))
             {
@@ -45,9 +46,16 @@ namespace VPlan_API_Adapter
 
             if (tokens.Any(t => t.token == strings.First())) {
                 var tr = tokens.First(r => r.token == strings.First());
-                tr.Use();
-                LogTokenAccess(strings.First()!, ctx.Request.Path, tr.isAdmin, ctx.Connection.RemoteIpAddress!.ToString(), true);
-                return VerificationResult.Passed;
+                if ((requireAdmin && tr.isAdmin) || !requireAdmin)
+                {
+                    tr.Use();
+                    LogTokenAccess(strings.First()!, ctx.Request.Path, tr.isAdmin, ctx.Connection.RemoteIpAddress!.ToString(), true);
+                    return VerificationResult.Passed;
+                } else
+                {
+                    LogTokenAccess(strings.First()!, ctx.Request.Path, tr.isAdmin, ctx.Connection.RemoteIpAddress!.ToString(), false, true);
+                    return VerificationResult.Unauthorized;
+                }
             } else
             {
                 LogTokenAccess(strings.First()!, ctx.Request.Path, false, ctx.Connection.RemoteIpAddress!.ToString(), false);
@@ -55,11 +63,12 @@ namespace VPlan_API_Adapter
             }
         }
 
-        public void LogTokenAccess(string token, string endpoint, bool adminToken, string ip, bool success)
+        public void LogTokenAccess(string token, string endpoint, bool adminToken, string ip, bool success, bool adminRequired = false)
         {
             string header = success ? "SUCCESS" : "FAILURE";
             string line = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {header} | {token} | {endpoint} | {ip}";
-            if (adminToken) line += " (admin)";
+            if (adminRequired) line += " | admin required";
+            if (adminToken) line += " | admin provided";
             File.AppendAllText(tokenLogFile, line + '\n');
         }
 

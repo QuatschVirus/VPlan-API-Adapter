@@ -1,10 +1,34 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Xml.Linq;
 using VPlan_API_Adapter.Server;
 
 namespace VPlan_API_Adapter
 {
     public class CacheKeeper
     {
+        public struct CacheStats : IXMLSerializable
+        {
+            public DateTime LastUpdated { get; set; }
+            public DateOnly ReferenceDate { get; set; }
+            public DateTime DataExpires { get; set; }
+
+            public DateTime LastPulled { get; set; }
+            public DateTime CacheExpires { get; set; }
+
+            public XElement ToXML()
+            {
+                XElement root = new("Stat");
+
+                root.Add(new XElement("LastUpdated", LastUpdated));
+                root.Add(new XElement("ReferenceDate", ReferenceDate));
+                root.Add(new XElement("DataExpires", DataExpires));
+                root.Add(new XElement("LastPulled", LastPulled));
+                root.Add(new XElement("CacheExpires", CacheExpires));
+
+                return root;
+            }
+        }
+
         private Config cfg;
 
         private Dictionary<DateOnly, (VPlan, DateTime)> caches = [];
@@ -56,6 +80,23 @@ namespace VPlan_API_Adapter
 
                 return false;
             }
+        }
+
+        public List<CacheStats> GetStats()
+        {
+            List<CacheStats> stats = [];
+            foreach (var kv in caches)
+            {
+                stats.Add(new()
+                {
+                    LastUpdated = kv.Value.Item1.LastPulled,
+                    DataExpires = kv.Value.Item1.Expires,
+                    ReferenceDate = kv.Key,
+                    LastPulled = kv.Value.Item2,
+                    CacheExpires = kv.Value.Item2 + cfg.CacheExpiration
+                });
+            }
+            return stats;
         }
 
         public void Purge()

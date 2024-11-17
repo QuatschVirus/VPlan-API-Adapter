@@ -13,11 +13,10 @@ namespace VPlan_API_Adapter.Server
         private readonly DateOnly referenceDate;
         private readonly TimeSpan expiration;
 
-        private readonly string fullBaseUrl;
-
         private readonly HttpClient client;
 
         public DateTime LastPulled => lastPulled;
+        public DateTime Expires => lastPulled + expiration;
 
         public bool UpdateDataIfExpired()
         {
