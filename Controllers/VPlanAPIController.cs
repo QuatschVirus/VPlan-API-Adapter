@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using VPlan_API_Adapter.Client;
 using Microsoft.OpenApi.Validations.Rules;
 using System.Diagnostics;
+using System.Xml.Serialization;
+using System.Xml.Linq;
 
 namespace VPlan_API_Adapter.Controllers
 {
@@ -42,7 +44,13 @@ namespace VPlan_API_Adapter.Controllers
                     };
                 } else
                 {
-                    return new JsonResult(new Class(c));
+                    if (Request.ShouldReturnXML())
+                    {
+                        return Util.CreateXMLResult(new Class(c));
+                    } else
+                    {
+                        return new JsonResult(new Class(c));
+                    }
                 }
             } else
             {

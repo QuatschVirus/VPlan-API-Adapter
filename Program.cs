@@ -28,6 +28,7 @@ namespace VPlan_API_Adapter
                 options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 
                 options.OperationFilter<SwaggerHeaderFilter>();
+                options.OperationFilter<ReturnTypeParameter>();
             });
 
             builder.Services.AddSingleton(Config.Load());
@@ -42,7 +43,12 @@ namespace VPlan_API_Adapter
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(c =>
+                {
+                    c.DisplayRequestDuration();
+                    c.ShowCommonExtensions();
+                }
+                );
             }
 
             app.UseHttpsRedirection();

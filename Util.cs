@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Security.Cryptography;
 using System.Text;
 using System.Xml.Linq;
 
@@ -24,6 +25,24 @@ namespace VPlan_API_Adapter
         public static string GetXMLHashable(XElement e)
         {
             return e.Name.LocalName + ";" + string.Join(',', e.Attributes().Select(a => a.Name.LocalName + "=" + a.Value)) + ";" + e.Value;
+        }
+
+        public static IActionResult CreateXMLResult(IXMLSerializable serializable)
+        {
+            XDocument doc = new();
+            doc.Add(serializable.ToXML());
+
+            return new ContentResult()
+            {
+                StatusCode = 200,
+                ContentType = "application/xml",
+                Content = doc.ToString()
+            };
+        }
+
+        public static bool ShouldReturnXML(this HttpRequest request)
+        {
+            return request.Headers.Accept.Contains("applicaation/xml") || (request.Headers.TryGetValue(ReturnTypeParameter.ReturnTypeHeaderName, out var strings) && strings.Contains("application/xml"));
         }
     }
 }

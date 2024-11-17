@@ -1,4 +1,5 @@
-﻿using VPlan_API_Adapter.Server;
+﻿using System.Xml.Linq;
+using VPlan_API_Adapter.Server;
 
 namespace VPlan_API_Adapter.Client
 {
@@ -6,7 +7,7 @@ namespace VPlan_API_Adapter.Client
     {
     }
 
-    public class Class
+    public class Class : IXMLSerializable
     {
         public Class(Server.Class @class)
         {
@@ -18,9 +19,34 @@ namespace VPlan_API_Adapter.Client
         public string Name { get; set; }
         public Dictionary<int, TimeOnly[]> Periods { get; set; }
         public List<Lesson> Lessons { get; set; }
+
+        public XElement ToXML()
+        {
+            XElement root = new("Class");
+            root.Add(new XElement("Name", Name));
+
+            XElement periods = new("Periods");
+            foreach (var kv in Periods)
+            {
+                XElement p = new("Period", kv.Key);
+                p.SetAttributeValue("Start", kv.Value[0]);
+                p.SetAttributeValue("End", kv.Value[1]);
+                periods.Add(p);
+            }
+            root.Add(periods);
+
+            XElement lessons = new("Lessons");
+            foreach (var l in Lessons)
+            {
+                lessons.Add(l.ToXML());
+            }
+            root.Add(lessons);
+
+            return root;
+        }
     }
 
-    public class Lesson
+    public class Lesson : IXMLSerializable
     {
         public Lesson(Server.Lesson lesson)
         {
@@ -65,6 +91,41 @@ namespace VPlan_API_Adapter.Client
         public string? Info { get; set; }
 
         public Changes Changes { get; set; }
+
+        public XElement ToXML()
+        {
+            XElement root = new("Lesson");
+            root.Add(new XElement("ClassName", ClassName));
+
+            XElement period = new("Period", Period);
+            period.SetAttributeValue("Start", Time[0]);
+            period.SetAttributeValue("End", Time[1]);
+            root.Add(period);
+
+            XElement teacher = new("Teacher", Teacher);
+            teacher.SetAttributeValue("Default", DefaultTeacher);
+            root.Add(teacher);
+
+            XElement subject = new("Subject", Subject);
+            subject.SetAttributeValue("Default", DefaultSubject);
+            root.Add(subject);
+
+            XElement course = new("Course", Course);
+            course.SetAttributeValue("Default", DefaultCourse);
+            root.Add(course);
+
+            root.Add(new XElement("Room", Room));
+            root.Add(new XElement("Info", Info));
+
+            XElement changes = new("Changes");
+            if (Changes.Teacher) changes.Add(new XElement("Teacher"));
+            if (Changes.Subject) changes.Add(new XElement("Subject"));
+            if (Changes.Room) changes.Add(new XElement("Room"));
+            if (Changes.Canceled) changes.Add(new XElement("Canceled"));
+            root.Add(changes);
+
+            return root;
+        }
     }
 
     public struct Changes
