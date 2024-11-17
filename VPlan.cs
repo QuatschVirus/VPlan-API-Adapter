@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Xml.Linq;
 
-namespace VPlan_API_Adapter
+namespace VPlan_API_Adapter.Server
 {
     // TODO: Create better modells for client-side
 
@@ -372,8 +372,8 @@ namespace VPlan_API_Adapter
             Info = string.IsNullOrWhiteSpace(lessonRoot.Element("If")!.Value) ? null : lessonRoot.Element("If")!.Value;
 
             if (lessonRoot.Element("Fa")!.Attribute("FaAe") != null) Changes |= Changes.Subject;
-            if (lessonRoot.Element("Le")!.Attribute("FaAe") != null) Changes |= Changes.Teacher;
-            if (lessonRoot.Element("Ra")!.Attribute("FaAe") != null) Changes |= Changes.Room;
+            if (lessonRoot.Element("Le")!.Attribute("LeAe") != null) Changes |= Changes.Teacher;
+            if (lessonRoot.Element("Ra")!.Attribute("RaAe") != null) Changes |= Changes.Room;
 
             if (Changes.HasFlag(Changes.Subject | Changes.Teacher | Changes.Room))
             {

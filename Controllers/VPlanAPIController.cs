@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using VPlan_API_Adapter.Client;
 using Microsoft.OpenApi.Validations.Rules;
 using System.Diagnostics;
 
@@ -26,6 +27,7 @@ namespace VPlan_API_Adapter.Controllers
         /// <returns>The class if found</returns>
         [HttpGet("{refDateStr}/class/{name}")]
         [ApiToken]
+        [Produces("application/json", "application/xml")]
         public IActionResult Class(string refDateStr, string name)
         {
             if (cacheKeeper.PreProcessRequest(refDateStr, out var plan, out var result))
@@ -40,7 +42,7 @@ namespace VPlan_API_Adapter.Controllers
                     };
                 } else
                 {
-                    return new JsonResult(c);
+                    return new JsonResult(new Class(c));
                 }
             } else
             {
