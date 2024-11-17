@@ -58,7 +58,7 @@ namespace VPlan_API_Adapter
         public void LogTokenAccess(string token, string endpoint, bool adminToken, string ip, bool success)
         {
             string header = success ? "SUCCESS" : "FAILURE";
-            string line = $"[{header}] {token} | {endpoint} | {ip}";
+            string line = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {header} | {token} | {endpoint} | {ip}";
             if (adminToken) line += " (admin)";
             File.AppendAllText(tokenLogFile, line + '\n');
         }
