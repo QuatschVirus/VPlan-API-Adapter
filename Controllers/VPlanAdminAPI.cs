@@ -18,17 +18,20 @@ namespace VPlan_API_Adapter.Controllers
 
         [HttpGet("cache-stats")]
         [AdminApiToken]
+        
         public IActionResult CacheStats()
         {
-            List<CacheKeeper.CacheStats> stats = cacheKeeper.GetStats();
-            if (Request.ShouldReturnXML())
-            {
-                return Util.CreateXMLResult(XMLSerializeableList<CacheKeeper.CacheStats>.From(stats, "Stats"));
-            }
-            else
-            {
-                return new JsonResult(stats);
-            }
+            //List<CacheKeeper.CacheStats> stats = cacheKeeper.GetStats();
+            //if (Request.ShouldReturnXML())
+            //{
+            //    return Util.CreateXMLResult(XMLSerializeableList<CacheKeeper.CacheStats>.From(stats, "Stats"));
+            //}
+            //else
+            //{
+            //    return new JsonResult(stats);
+            //}
+
+            return Request.ProduceResult(cacheKeeper.GetStats());
         }
     }
 }

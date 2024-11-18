@@ -82,9 +82,9 @@ namespace VPlan_API_Adapter
             }
         }
 
-        public List<CacheStats> GetStats()
+        public XMLSerializeableList<CacheStats> GetStats()
         {
-            List<CacheStats> stats = [];
+            XMLSerializeableList<CacheStats> stats = new("Stats");
             foreach (var kv in caches)
             {
                 stats.Add(new()
