@@ -18,7 +18,7 @@ namespace VPlan_API_Adapter.Controllers
 
         [HttpGet("cache-stats")]
         [AdminApiToken]
-        
+        [Produces("application/json", "application/xml")]
         public IActionResult CacheStats()
         {
             //List<CacheKeeper.CacheStats> stats = cacheKeeper.GetStats();
