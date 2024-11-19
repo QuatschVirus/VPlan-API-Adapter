@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace VPlan_API_Adapter
+namespace VPlan_API_Adapter.Attributes
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class ApiTokenAttribute : Attribute, IActionFilter, IHeaderFilter
@@ -52,7 +52,7 @@ namespace VPlan_API_Adapter
 
         public void OnActionExecuted(ActionExecutedContext context)
         {
-            
+
         }
 
         public void OnActionExecuting(ActionExecutingContext context)
@@ -84,7 +84,7 @@ namespace VPlan_API_Adapter
                         context.Result = new ContentResult()
                         {
                             StatusCode = 403,
-                            Content = "{UNAUTHORIZED]\nUnauthorized to perform admin actions"
+                            Content = "[UNAUTHORIZED]\nUnauthorized to perform admin actions"
                         };
                         return;
                     }

@@ -18,8 +18,10 @@ namespace VPlan_API_Adapter
 
         public static XMLSerializeableList<T> From(List<T> list, string rootElementName)
         {
-            XMLSerializeableList<T> xList = (XMLSerializeableList<T>)list;
-            if (list is not XMLSerializeableList<T>) xList.rootElementName = rootElementName;
+            if (list is XMLSerializeableList<T> xmlList) return xmlList;
+
+            XMLSerializeableList<T> xList = new(rootElementName);
+            xList.AddRange(list);
             return xList;
         }
 

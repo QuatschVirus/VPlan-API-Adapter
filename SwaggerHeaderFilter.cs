@@ -30,12 +30,4 @@ namespace VPlan_API_Adapter
         public string? HeaderDescription { get; }
         public bool IsHeaderRequired { get; }
     }
-
-    [AttributeUsage(AttributeTargets.Method)]
-    public class HeaderFilter(string name, string? description, bool required) : Attribute, IHeaderFilter
-    {
-        public string HeaderName { get; } = name;
-        public string? HeaderDescription { get; } = description;
-        public bool IsHeaderRequired => required;
-    }
 }

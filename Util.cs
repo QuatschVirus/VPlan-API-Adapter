@@ -63,10 +63,13 @@ namespace VPlan_API_Adapter
             if (allowedContentTypes.Count != 0) allowedContentTypes.Add(defaultContentType);
 
             string contentType = request.Headers.TryGetValue(ReturnTypeParameter.ReturnTypeHeaderName, out var strings) ? strings.FirstOrDefault(defaultContentType)! : defaultContentType;
+
+            if (data == null) return new NoContentResult();
             if (allowedContentTypes.Contains(contentType))
             {
                 switch (contentType)
                 {
+                    case "text/plain": return new ContentResult() { StatusCode = 200, Content = data.ToString() };
                     case "application/json": return new JsonResult(data);
                     case "application/xml":
                         {

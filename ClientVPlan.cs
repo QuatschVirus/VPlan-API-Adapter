@@ -128,6 +128,46 @@ namespace VPlan_API_Adapter.Client
         }
     }
 
+    public class Teacher : IXMLSerializable
+    {
+        public Teacher(Server.Teacher teacher)
+        {
+            ShortHand = teacher.ShortHand;
+            Lessons = teacher.Lessons.Select(l => new Lesson(l)).ToList();
+        }
+
+        public string ShortHand { get; set; }
+        public List<Lesson> Lessons { get; set; }
+
+        public XElement ToXML()
+        {
+            XElement root = new("Teacher");
+            root.Add(new XElement("ShortHand", ShortHand));
+            root.Add(XMLSerializeableList<Lesson>.From(Lessons, "Lessons").ToXML());
+            return root;
+        }
+    }
+
+    public class Room : IXMLSerializable
+    {
+        public Room(Server.Room room)
+        {
+            ShortHand = room.Name;
+            Lessons = room.Lessons.Select(l => new Lesson(l)).ToList();
+        }
+
+        public string ShortHand { get; set; }
+        public List<Lesson> Lessons { get; set; }
+
+        public XElement ToXML()
+        {
+            XElement root = new("Teacher");
+            root.Add(new XElement("ShortHand", ShortHand));
+            root.Add(XMLSerializeableList<Lesson>.From(Lessons, "Lessons").ToXML());
+            return root;
+        }
+    }
+
     public struct Changes
     {
         public bool Teacher { get; set; }

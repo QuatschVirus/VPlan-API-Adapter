@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
+using VPlan_API_Adapter.Attributes;
+
 namespace VPlan_API_Adapter.Controllers
 {
     [Route("api/[controller]")]
@@ -9,16 +11,18 @@ namespace VPlan_API_Adapter.Controllers
     {
         private Config cfg;
         private CacheKeeper cacheKeeper;
+        private TokenManager tokenManager;
 
-        public VPlanAdminAPI(Config cfg, CacheKeeper cacheKeeper)
+        public VPlanAdminAPI(Config cfg, CacheKeeper cacheKeeper, TokenManager tokenManager)
         {
             this.cfg = cfg;
             this.cacheKeeper = cacheKeeper;
+            this.tokenManager = tokenManager;
         }
 
         [HttpGet("cache-stats")]
         [AdminApiToken]
-        [Produces("application/json", "application/xml")]
+        [ProducesJSONandXML]
         public IActionResult CacheStats()
         {
             //List<CacheKeeper.CacheStats> stats = cacheKeeper.GetStats();
@@ -32,6 +36,23 @@ namespace VPlan_API_Adapter.Controllers
             //}
 
             return Request.ProduceResult(cacheKeeper.GetStats());
+        }
+
+        [HttpGet("token")]
+        [AdminApiToken]
+        [SecretRequired]
+        [Produces("text/plain")]
+        public IActionResult NewToken([FromQuery] bool admin = false)
+        {
+            return Request.ProduceResult(tokenManager.NewToken(admin).token);
+        }
+
+        [HttpDelete("token")]
+        [AdminApiToken]
+        [SecretRequired]
+        public IActionResult DeleteToken([FromQuery] string token)
+        {
+            return tokenManager.DeleteToken(token) ? Ok() : NotFound();
         }
     }
 }
