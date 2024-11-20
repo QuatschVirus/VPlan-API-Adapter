@@ -58,7 +58,8 @@ namespace VPlan_API_Adapter
 
             if (tokens.Any(t => t.token == strings.First())) {
                 var tr = tokens.First(r => r.token == strings.First());
-                if ((requireAdmin && tr.isAdmin) || !requireAdmin)
+                bool expired = tr.lastUsed + cfg.TokenExpiration < DateTime.Now;
+                if (!expired && ((requireAdmin && tr.isAdmin) || !requireAdmin))
                 {
                     tr.Use();
                     requestCounter++;
@@ -71,7 +72,8 @@ namespace VPlan_API_Adapter
                     return VerificationResult.Passed;
                 } else
                 {
-                    LogTokenAccess(strings.First()!, ctx.Request.Path, tr.isAdmin, ctx.Connection.RemoteIpAddress!.ToString(), false, true);
+                    if (expired) DeleteToken(strings.First()!);
+                    LogTokenAccess(strings.First()!, ctx.Request.Path, tr.isAdmin, ctx.Connection.RemoteIpAddress!.ToString(), false, true, expired);
                     return VerificationResult.Unauthorized;
                 }
             } else
@@ -81,10 +83,11 @@ namespace VPlan_API_Adapter
             }
         }
 
-        public void LogTokenAccess(string token, string endpoint, bool adminToken, string ip, bool success, bool adminRequired = false)
+        public void LogTokenAccess(string token, string endpoint, bool adminToken, string ip, bool success, bool adminRequired = false, bool expired = false)
         {
             string header = success ? "SUCCESS" : "FAILURE";
             string line = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] TOKEN | {header} | {token} | {endpoint} | {ip}";
+            if (expired) line += " | expired";
             if (adminRequired) line += " | admin required";
             if (adminToken) line += " | admin provided";
             File.AppendAllText(tokenLogFile, line + '\n');
